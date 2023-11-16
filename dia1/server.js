@@ -9,26 +9,42 @@
 // server.listen(3000);
 
 import { fastify } from "fastify";
-import { DatabaseMemory } from "./db";
+import { DatabaseMemory } from "./db.js";
 
 const server = fastify();
 
 const database = new DatabaseMemory();
 
-server.get("/", () => {
-  return "Hello!";
+server.get("/videos", () => {
+  const videos = database.list()
+
+  return videos;
 });
 
-server.post("/videos", () => {
+server.post("/videos", (request, reply) => {
+  const { title, description, duration } = request.body
+  
   database.create({
-    title: "Video 01",
-    description: "This is video 01",
-    duration: 180,
+    title,
+    description,
+    duration
   });
+  
+  return reply.status(201).send();
+
 });
 
-server.put("/videos/:id", () => {
-  return "Hello, NodeJS!";
+server.put("/videos/:id", (request, reply) => {
+  const videoID = request.params.id
+  const { title, description, duration } = request.body
+
+  database.update(videoID, {
+    title,
+    description,
+    duration
+  })
+
+  return reply.status(204).send()
 });
 
 server.delete("/videos/:id", () => {
