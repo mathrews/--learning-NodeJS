@@ -3,7 +3,7 @@ import { randomUUID } from "crypto";
 export class DatabaseMemory {
   #videos = new Map();
 
-  list() {
+  list(search) {
     return Array.from(this.#videos.entries()).map((videoArray) => {
       const id = videoArray[0];
       const data = videoArray[1];
@@ -12,7 +12,13 @@ export class DatabaseMemory {
         id,
         ...data,
       };
-    }); //transforma uma estrutura de dados em um array
+    }).filter((video) => {
+      if (search) {
+        return video.title.includes(search);
+      }
+
+      return true 
+    }) //transforma uma estrutura de dados em um array
   }
 
   create(video) {
@@ -26,6 +32,6 @@ export class DatabaseMemory {
   }
 
   delete(id) {
-    this.#videos.delete(id, video);
+    this.#videos.delete(id);
   }
 }

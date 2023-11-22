@@ -15,8 +15,10 @@ const server = fastify();
 
 const database = new DatabaseMemory();
 
-server.get("/videos", () => {
-  const videos = database.list()
+server.get("/videos", (request) => {
+  const search = request.query.search
+
+  const videos = database.list(search)
 
   return videos;
 });
@@ -38,17 +40,29 @@ server.put("/videos/:id", (request, reply) => {
   const videoID = request.params.id
   const { title, description, duration } = request.body
 
-  database.update(videoID, {
-    title,
-    description,
-    duration
-  })
+  if (videoID === "") {
+    return reply.status(404).send();
+  } else {
+    database.update(videoID, {
+      title,
+      description,
+      duration
+    })
+    return reply.status(204).send()
+  }
 
-  return reply.status(204).send()
 });
 
-server.delete("/videos/:id", () => {
-  return "Hello, NodeJS!";
+server.delete("/videos/:id", (request, reply) => {
+  const videoID = request.params.id
+
+  if (videoID === null) {
+    return reply.status(404).send();
+  } else {
+    database.delete(videoID);
+    return reply.status(200).send()
+  }
+
 });
 
 server.listen({
